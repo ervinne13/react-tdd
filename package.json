@@ -12,6 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "cypress": "^4.5.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
     "jest": "^26.0.1",
     "parcel-bundler": "^1.12.4"
   },
@@ -19,5 +21,8 @@
     "app": "^0.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
+  },
+  "jest": {
+      "setupTestFrameworkScriptFile": "<rootDir>test/setup.js"
   }
 }
