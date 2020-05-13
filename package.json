@@ -30,7 +30,8 @@
   "dependencies": {
     "app": "^0.1.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "src": "^1.1.2"
   },
   "jest": {
     "setupFilesAfterEnv": [

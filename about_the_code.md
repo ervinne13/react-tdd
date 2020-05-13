@@ -2,7 +2,7 @@
 
 Aside from what linter checks, in this document we'll be dicussing about the notations, keywords, and other standards that should be observed when working with this code.
 
-## Section 1: Parts of the System & Folder Structure
+## Section 1: Server Code Structure
 
 ### 1.1 Modules
 
@@ -65,7 +65,7 @@ A worklog contains a project, a task, and the employee that wrote the worklog.
 
 __TODO: Elaborate on this__
 
-## Section 2: Naming Things
+## Section 2: Naming Things (Server)
 
 ### 2.1 CRUD Verbs
 
@@ -79,6 +79,7 @@ Consistency of usage of the following must be observed:
 |Store|This means to actually store something to the persistence layer. Ex. a `store-worklog` `data-action` attribute of a button or a `store()` function in the `WorklogController`.|
 |Edit|Same as `Create` but for modifying existing records. Usually used for links and showing pages to edit a certain record.
 |Update|Same as `Store` but for saving changes to existing records.
+|Save|Save is used when the `Store` and `Update` can be combined into one. You can occassionally find this more on the frontend source code but can seldom be on the server code too.|
 |Delete|Delete a record from the database/persistence|
 
 ### Resource Controllers & Routes
@@ -185,7 +186,7 @@ class SpaceshipsController {
 
 ```
 
-### 2.2 Formats & Casing
+### 3.2 Formats & Casing
 
 For JSON stuff, we'll generally follow what [Google JSON Style Guide](https://google.github.io/styleguide/jsoncstyleguide.xml?showone=Property_Name_Format#Property_Name_Format) says. We'll refer to this as `GJSG` from now on to make it short.
 
@@ -310,3 +311,119 @@ const doSomething = (param1) => {
 ```
 
 Note that we should be able to __warn__ other developers that a certain variable or a property of it in case of objects, can mutate by declaring it with `let` and we can't do that with parameters. Besides, consensus is it's generally considered bad practice to do so anyway.
+
+## Section 4: React Code (TODO)
+
+## Section 5: Naming Things (React)
+
+### 5.1 React Component Function Names
+
+Note that in react components, we don't make use of underscore prefixes as technically, there's no public properties and methods of react components. When a component is used, you can only display the markup and do some __inversion of control__ using callbacks passed as props.
+
+An imporant thing to be consistent on though, is the use of "`on`" and "`trigger`" prefixes on component functions.
+
+Consider the following component:
+
+```jsx
+class RestaurantForm extends React.Component {
+    state = { name: '' }
+
+    render() {
+        const { name } = this.state;
+
+        return (
+            <div className="restaurant-form">
+                <input
+                    value={name}
+                    onChange={this.syncState}
+                    name="name"
+                    type="text" />
+
+                <button
+                    onClick={this.triggerOnSave}
+                    data-action="save">
+                    Create Restaurant
+                </button>
+            </div>
+        );
+    }
+
+    syncState = (event) => {
+        const { value } = event.target;
+        this.setState({ name: value });
+    }
+
+    triggerOnSave = () => {
+        const { onSave } = this.props;
+        onSave && onSave(this.getRestaurant());
+    }
+
+    getRestaurant() {
+        const { name } = this.state;
+        return {
+            name,
+        };
+    } 
+}
+```
+
+The component above is tested like so:
+
+```jsx
+const onSaveHandler = jest.fn();
+const wrapper = mount(<RestaurantForm onSave={onSaveHandler} />);
+
+wrapper
+    .find('[name="name"]')
+    .simulate('change', { target: { value: 'Seafood Island' } });
+
+wrapper
+    .find('[data-action="save"]')
+    .simulate('click');
+
+expect(onSaveHandler)
+    .toHaveBeenCalledWith({ name: 'Seafood Island' });
+```
+
+Take note of the following functions:
+
+- `syncState()`
+- `onSave()` (passed through props)
+- `triggerOnSave()`
+
+__#Component Function Prefixes__
+
+Now you should notice that "`on`" functions are used to listen to events that happen *inside* this component which happens when you type on the text field, click on a button, or listen to the component itself (like in this example) etc.
+
+While the "`trigger`" prefix are functions that trigger callbacks that are passed from the *outside* of the component. Separating it this way, we can call multiple `on` command functions that make use of the same "`trigger`" function, additionally, it's now safe to call it since testing of whether an `onSave` callback was passed in to the props of this component is done centrally in the `trigger` function.
+
+A good guideline can be:
+
+- If there's an `onSave` (passed through props), you bet there will be a `triggerOnSave` inside the component. (`onSomething` > `triggerOnSomething`).
+- `on` = inside, `trigger` = outside.
+
+__#Encapsulation of Components__
+
+You need to expose only the things that are considered *"finished products"* in your components. In this case, considering the code:
+
+```jsx
+<RestaurantForm onSave={onSaveHandler} />
+```
+
+... we are limiting the user of the `RestaurantForm` component to only be able to get the details of the restaurant upon saving. We do not, and must not, expose things like on change of a component unless that change results to a *"finished product"*, which, in this case, is a full `restaurant` object with a `name` property.
+
+### 5.2 React Component Function Order
+
+You should notice by now that we are following [*"newspaper code structure"*](https://kentcdodds.com/blog/newspaper-code-structure) in ordering our functions. The function `render()` came before the other *"event listener"* and *"trigger"* functions.
+
+> *Your code should read like a newspaper article. Important stuff at the top, details at the bottom.*
+
+In this case, the important part, which is also the "summary" is the `render()` function or our markup. The other details about it will just follow, we are only usually interested on the markup, and when we want to find more about the component, then that's when we scroll down to __*see the details*__.
+
+*Just like a news paper, the first thing you see is a one paragraph summary of the article, then in the next paragraphs, you can read about the details of that article.*
+
+*It should also feel like just reading the "summary" (in this case the `render()`) is enough to know about the whole code.*
+
+The statements above are also made possible because we named our functions carefully. For example, the `name` text field calls the `syncState()` when the `onChange` callback is invoked, this is now pretty self explanatory. In this example, when name is changed, sync it to the state; this is the "summary", if the developer wants to know how the state is changed, he will scroll down to the `syncState()` function, this is the details. 
+
+*Again, summary first, then details, but to make this successful, carefully name your functions so that scrolling down wont even be necessary in most cases.*

@@ -3,15 +3,15 @@ describe('adding a restaurant', () => {
         const restaurant = 'Seafood Island';
 
         cy.visit('http://localhost:1234');
-        cy.get('[data-action="create-restaurant"]')
+        cy.get('.restaurant-list [data-action="create"]')
             .click();
 
         cy.get('[name="name"]')
             .type(restaurant);
 
-        cy.get('[data-action="store-restaurant"]')
+        cy.get('.restaurant-form [data-action="save"]')
             .click();
 
-        cy.contains(restaurant);
+        cy.get('.restaurant-list').contains(restaurant);
     });
 });
