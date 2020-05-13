@@ -1,5 +1,7 @@
 # Application Setup
 
+Note: for the coding standards and discussion of the code design, see [about_the_code.md](./about_the_code.md).
+
 ## # Parcel
 
 One of the key painpoints on the previous iterations of the worklogs application is the development workflow. The build tools we are currently using is relatively fast, but not fast enough to prevent distractions as building after every update in code takes at least a good 10 or more seconds. Parcel is nice as it works out of the box (at least until we do some complex stuff) but would perform exceptionally faster when ran consecutively (it would do a full build first, then seem to do some caching to make the next builds a whole lot faster).
