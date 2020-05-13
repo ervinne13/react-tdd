@@ -3,6 +3,10 @@ describe('adding a restaurant', () => {
         const restaurant = 'Seafood Island';
 
         cy.visit('http://localhost:1234');
+
+        cy.get('.restaurant-form')
+            .should('not.exist');
+
         cy.get('.restaurant-list [data-action="create"]')
             .click();
 
@@ -12,6 +16,10 @@ describe('adding a restaurant', () => {
         cy.get('.restaurant-form [data-action="save"]')
             .click();
 
-        cy.get('.restaurant-list').contains(restaurant);
+        cy.get('.restaurant-list')
+            .contains(restaurant);
+
+        cy.get('.restaurant-form')
+            .should('not.exist');
     });
 });
